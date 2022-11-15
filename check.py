@@ -11,6 +11,7 @@ from base64 import b64encode
 from hashlib import sha256
 import sqlite3 as sql
 import types
+import ast
 
 ### Check Functions ###
 def get_average_height(skyline_matrix: list) -> float:
@@ -128,6 +129,42 @@ def locals_globals():
             return False
 
     return True
+
+
+with open('test.py', 'r') as f:
+    src = f.read()
+
+code = ast.parse(src)
+
+expressions = [exp for exp in ast.walk(code)]
+expressions.pop(0)
+
+
+def has_construct(t: type, arr: list):
+    def wrapper():
+        for node in arr:
+            if isinstance(node, t):
+                return True
+
+        return False
+
+    return wrapper
+
+
+has_while = has_construct(ast.While, expressions)
+has_for = has_construct(ast.For, expressions)
+has_if = has_construct(ast.If, expressions)
+
+def get_funcs(arr: list):
+    funcs = []
+    for node in arr:
+        if isinstance(node, ast.Call):
+            funcs.append(node)
+
+    return funcs
+
+funcs = get_funcs(expressions)
+
 
 ### Boilerplate ###
 
